@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="UserDAO">
+	<select id="selectUserList" resultType="springMap">
+		SELECT *
+		FROM TN_USR
+	</select>
+	
+	<select id="chckUserLogin" resultType="springMap">
+		SELECT  USR_ID
+		        , USR_NM
+		        , ROLE_ID
+		        , PASSWORD
+		FROM TN_USR
+		WHERE 1=1
+		AND USR_ID = #{inputID}
+		AND USE_AT = 'Y'
+	</select>
+</mapper>
+
+
+

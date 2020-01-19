@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="AdminDAO">
+
+<!-- 	권한 조회 -->
+	<select id="selectRoleList" resultType="springMap">
+		SELECT  ROLE_ID
+        		, ROLE_NM
+		        , ROLE_DC
+		        , DISCOUNT
+		        , USE_AT
+		FROM TN_USR_ROLE
+		WHERE USE_AT = 'Y'
+	</select>
+	
+<!-- 	권한 중복체크 -->
+	<select id="chckRole" resultType="springMap">
+		SELECT  *
+		FROM TN_USR_ROLE
+		WHERE ROLE_ID = #{ROLE_ID}
+	</select>
+	
+<!-- 	권한 추가 -->
+	<insert id="insertRole">
+		INSERT INTO TN_USR_ROLE (
+				  ROLE_NM
+				  ,ROLE_DC
+				  ,DISCOUNT
+				  ,USE_AT
+				  ,FRST_REGIST_DT
+				  ,FRST_REGISTER_ID
+				  ,LAST_MODF_DT
+				  ,LAST_UPDUSR_ID
+		) VALUES (
+				  #{ROLE_NM}
+				  , #{ROLE_DC}
+				  , #{DISCOUNT}
+				  , 'Y'
+				  , NOW()
+				  , #{USR_ID}
+				  , NOW()
+				  , #{USR_ID}
+		)
+	</insert>
+	
+<!-- 	권한 추가 -->
+	<update id="deleteRole">
+		UPDATE TN_USR_ROLE
+		SET USE_AT = 'N'
+		    , LAST_MODF_DT = NOW()
+		    , LAST_UPDUSR_ID = #{USR_ID}
+		WHERE ROLE_ID = #{ROLE_ID}
+	</update>
+</mapper>
+
+
+
