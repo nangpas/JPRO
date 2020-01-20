@@ -58,7 +58,7 @@
 	    if (confirm("업로드 하시겠습니까?")) {
 	    	$("#excelUploadForm").ajaxSubmit({
 	            type:"POST",
-	            url:"<c:url value='/jpro/excelTest.do'/>",
+	            url:"<c:url value='/uploadFile.do'/>",
 	            contentType : "application/x-www-form-urlencoded;charset=UTF-8",
 	            beforeSubmit: function (data,form,option) {
 	                return true;

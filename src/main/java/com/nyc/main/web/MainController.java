@@ -1,5 +1,6 @@
 package com.nyc.main.web;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.nyc.cmm.service.MintService;
 import com.nyc.main.service.UserVO;
@@ -100,6 +102,5 @@ public class MainController {
         }
         
         return result;
-    }
-	
+	}
 }
