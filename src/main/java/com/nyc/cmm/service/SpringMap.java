@@ -8,7 +8,9 @@ public class SpringMap extends ListOrderedMap{
 
 	@Override
 	public Object put(Object key, Object value) {
-		// TODO Auto-generated method stub
-		return super.put(CamelUtil.convert2CamelCase((String) key), value);
+		byte[] temp = (byte[]) ((Object) value);
+		String reslut = new String(temp);
+
+		return super.put(CamelUtil.convert2CamelCase((String) key), reslut);
 	}
 }

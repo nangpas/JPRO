@@ -73,8 +73,8 @@ public class MainController {
             	result.put("errCd", "-1");
             	result.put("errMsg", "비밀번호가 입력되지 않았습니다.");
             }else{
-                Map<String, Object> usrInfo = mintService.detail_map("UserDAO.chckUserLogin", commandMap);
-
+            	Map<String, Object> usrInfo = mintService.detail_map("UserDAO.chckUserLogin", commandMap);
+            	
             	if(usrInfo == null || usrInfo.size() == 0) {
             		result.put("errCd", "-1");
                 	result.put("errMsg", "일치하는 아이디가 없습니다.");
@@ -98,7 +98,7 @@ public class MainController {
         } catch (Exception e) {
         	result.put("errCd", "-3");
         	result.put("errMsg", e.getMessage());
-            logger.debug(e.getMessage());
+            logger.debug("/login/actionLogin.do : " + e.getMessage());
         }
         
         return result;
