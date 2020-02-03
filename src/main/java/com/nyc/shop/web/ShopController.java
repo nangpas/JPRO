@@ -2,11 +2,25 @@ package com.nyc.shop.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -103,5 +117,34 @@ public class ShopController {
 		}
 		
 		return result;
+	}
+	
+	/**
+     * 테스트 페이지
+     * @return string
+     */
+	@RequestMapping(value = "/jpro/test.do")
+	public String test(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap) {
+		String url = "https://www.google.co.kr/search?q=%ED%86%B0%EC%BA%A3&hl=ko&sxsrf=ACYBGNRPPVThdcfd1esObhsdZuI9iOydnQ:1580707260039&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjy0um10bTnAhXJy4sBHX-UC9UQ_AUoAXoECBIQAw&biw=1920&bih=1057";
+		//String url = "https://search.naver.com/search.naver?where=image&sm=tab_jum&query=나이키";
+		try {
+			System.setProperty("webdriver.chrome.driver", "C:/chromedriver.exe");
+			WebDriver driver = new ChromeDriver();
+			
+			driver.get(url);
+			//
+			List<WebElement> element = null;
+			element = driver.findElements(By.className("rg_l"));
+			for(int i = 0; i < element.size(); i++) {
+				logger.debug(element.get(i).getAttribute("innerHTML"));
+			}
+			
+			//logger.debug(driver.getPageSource());
+		} catch (Exception e) {
+			logger.debug(e.getMessage());
+		}
+		
+		
+		return "jpro/test";
 	}
 }

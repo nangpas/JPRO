@@ -236,6 +236,41 @@
 		    <version>2.7.0</version>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup 
+		자바 크롤링 -->
+		<dependency>
+		    <groupId>org.jsoup</groupId>
+		    <artifactId>jsoup</artifactId>
+		    <version>1.12.1</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple 
+		JSON 사용 -->
+		<dependency>
+		    <groupId>com.googlecode.json-simple</groupId>
+		    <artifactId>json-simple</artifactId>
+		    <version>1.1.1</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit 
+		크롤링시 스크립트를 처리
+		<dependency>
+		    <groupId>net.sourceforge.htmlunit</groupId>
+		    <artifactId>htmlunit</artifactId>
+		    <version>2.37.0</version>
+		</dependency>-->
+		
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+		<dependency>
+		    <groupId>org.seleniumhq.selenium</groupId>
+		    <artifactId>selenium-java</artifactId>
+		    <version>3.141.59</version>
+		</dependency>
+		
+		
+
+		
+		
 	</dependencies>
 	<build>
 		<plugins>
