@@ -2,7 +2,6 @@ package com.nyc.shop.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,12 +10,14 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -115,7 +116,7 @@ public class ShopController {
 		return result;
 	}
 	
-	/**
+	/**45
      * 테스트 페이지
      * @return string
 	 * @throws org.json.simple.parser.ParseException 
@@ -144,6 +145,49 @@ public class ShopController {
 		
 		return result;
 	}
+	
+	
+	/**
+     * 테스트 페이지
+     * @return string
+	 * @throws org.json.simple.parser.ParseException 
+     */
+	@ResponseBody
+	@RequestMapping(value = "/jpro/testCrawling2.do")
+	public List<String> testCrawling2(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap){
+		List<String> result = new ArrayList<String>();
+		String url = "https://www.bithumb.com/";
+		Map<String, Double> coinMap = new HashMap<String, Double>();
+		
+		try {
+			System.setProperty("webdriver.chrome.driver", "C:/chromedriver.exe");
+			WebDriver driver = new ChromeDriver();
+			
+			driver.get(url);
+			//
+			List<WebElement> element = null;
+			element = driver.findElements(By.className("fvtWrap"));
+			for(int i = 0; i < element.size(); i++) {
+				logger.debug(element.get(i).getAttribute("data-coin"));
+				String coinName = element.get(i).getAttribute("data-coin");
+				WebElement tempElement = element.get(i).findElement(By.id("assetReal" + coinName + "_KRW"));
+				logger.debug(tempElement.getAttribute("data-sorting"));
+				Double coinPrice = Double.valueOf(tempElement.getAttribute("data-sorting").replace(",", ""));
+				
+				coinMap.put(coinName, coinPrice);
+			}
+		} catch (Exception e) {
+			logger.debug(e.getMessage());
+		}
+		
+		logger.debug(coinMap.toString());
+		
+		
+		return result;
+	}
+	
+	
+	
 	
 	
 	/**

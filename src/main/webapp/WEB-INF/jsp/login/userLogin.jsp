@@ -10,10 +10,17 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>로그인</title>
+    <!-- css -->
+   <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/semantic/semantic.min.css"/>"/>
     
+    <!-- js -->
     <script type="text/javascript" src="<c:url value="/resources/js/common/jquery-3.4.1.min.js"/>"></script>
     <script type="text/javascript" src=" <c:url value="/resources/js/common/jquery.form.min.js"/>"></script>
+	<!-- semantic ui -->
+	<script type="text/javascript" src="<c:url value="/resources/js/semantic/semantic.min.js"/>"></script>
+	<!-- 개인 js -->
     <script type="text/javascript" src="<c:url value="/resources/js/jpro_default.0.1.js"/>"></script>
+    
 </head>
 
 <body>
