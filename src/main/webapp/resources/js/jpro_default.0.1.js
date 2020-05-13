@@ -4,17 +4,71 @@
 
 //Ajax
 function won_getAjax(ajax_set) {
-    $.ajax({
-        type: "POST",
-        url: ajax_set.url,
-        data: ajax_set.param,
-        processData: false,
-        dataType: 'json',
-        error: function(){
-            alert('조회중 오류가 발생하였습니다.');
-        },
-        success: ajax_set.return_fn
-    });
+	if(ajax_set.loading == "true"){
+		$.ajax({
+	        type: "POST",
+	        url: ajax_set.url,
+	        data: ajax_set.param,
+	        processData: false,
+	        dataType: 'json',
+	        error: function(){
+	            alert('조회중 오류가 발생하였습니다.');
+	        },
+	        success: ajax_set.return_fn,
+	        beforeSend:function(){
+	            $('.wrap-loading').removeClass('display-none');
+	        },
+	        complete:function(){
+	            $('.wrap-loading').addClass('display-none');
+	        }
+	    });
+	}else{
+		$.ajax({
+	        type: "POST",
+	        url: ajax_set.url,
+	        data: ajax_set.param,
+	        processData: false,
+	        dataType: 'json',
+	        error: function(){
+	            alert('조회중 오류가 발생하였습니다.');
+	        },
+	        success: ajax_set.return_fn
+	    });
+	}
+}
+
+function won_formAjax(ajax_set){
+	if(ajax_set.loading == "true"){
+		$(ajax_set.form_name).ajaxSubmit({ 
+	        type:"POST",
+	        dataType:'json',
+	        url:ajax_set.url, 
+	        contentType : "application/x-www-form-urlencoded;charset=UTF-8",
+	        async:false,
+	        beforeSubmit : wini_beforeSubmit,
+	        complete: function() {
+	            winigrid_submit_ingView(false);
+	        },
+	        error: function(){            
+	            alert('처리중 오류가 발생하였습니다.');
+	            winigrid_submit_ingView(false);
+	        },
+	        success:ajax_set.return_fn
+	    });
+	}else{
+		$(ajax_set.form_name).ajaxSubmit({ 
+	        type:"POST",
+	        dataType:'json',
+	        url:ajax_set.url, 
+	        contentType : "application/x-www-form-urlencoded;charset=UTF-8",
+	        async:false,
+	        error: function(){            
+	            alert('처리중 오류가 발생하였습니다.');
+	            winigrid_submit_ingView(false);
+	        },
+	        success:ajax_set.return_fn
+	    });
+	}
 }
 
 

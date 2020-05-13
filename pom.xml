@@ -245,12 +245,12 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple 
-		JSON 사용 -->
+		JSON 사용
 		<dependency>
 		    <groupId>com.googlecode.json-simple</groupId>
 		    <artifactId>json-simple</artifactId>
 		    <version>1.1.1</version>
-		</dependency>
+		</dependency> -->
 		
 		<!-- https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit 
 		크롤링시 스크립트를 처리

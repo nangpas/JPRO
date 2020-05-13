@@ -1,15 +1,22 @@
 package com.nyc.cmm.service.impl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.nyc.cmm.service.ExcelService;
-import com.nyc.cmm.util.ExcelRead;
+import com.nyc.cmm.util.ExcelCellRef;
+import com.nyc.cmm.util.ExcelFileType;
 import com.nyc.cmm.util.ExcelReadOption;
 
 
@@ -19,22 +26,52 @@ public class ExcelServiceImpl implements ExcelService{
 	private static final Logger logger = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
 	@Override
-	public void excelUpload(File file) throws Exception {
+	public  List<Map<String, String>> excelUpload(File file, String word, String column) throws Exception {
 		ExcelReadOption excelReadOption = new ExcelReadOption();
         excelReadOption.setFilePath(file.getAbsolutePath());
-        excelReadOption.setHeaderRow(1);
-        excelReadOption.setOutputColumns("A","B","C");
-        excelReadOption.setStartRow(2);
+        
+        Workbook wb = ExcelFileType.getWorkbook(excelReadOption.getFilePath());
+        
+        Sheet sheet = wb.getSheetAt(0);
+        
+        int rowNum = sheet.getPhysicalNumberOfRows();
+        int cellNum = 0;
+        
+        Row row = null;
+        Cell cell = null;
+        
+        String cellName = "";
+        
+        Map<String, String> map = null;
+        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
         
         
-        List<Map<String, String>>excelContent =ExcelRead.read(excelReadOption);
-        logger.debug(excelContent.toString());
-        for(Map<String, String> article: excelContent){
-        	//DB값 insert 실행
-        	logger.debug(article.get("아이디"));
-        	logger.debug(article.get("이름"));
-        	logger.debug(article.get("전화번호"));
+        for(int rowIndex = excelReadOption.getStartRow() - 1; rowIndex < rowNum; rowIndex++) {
+            row = sheet.getRow(rowIndex);
+            
+            if(row != null) {
+            	cellNum = row.getPhysicalNumberOfCells();
+            	
+                map = new HashMap<String, String>();
+                
+                for(int cellIndex = 0; cellIndex < cellNum; cellIndex++) {
+                    
+                    cell = row.getCell(cellIndex);
+                    cellName = ExcelCellRef.getName(cell, cellIndex);
+                    
+                    map.put(cellName, ExcelCellRef.getValue(cell));
+                }
+                
+                if(map.get(column).contains(word)) {
+                	result.add(map);
+                }
+            }
+            
         }
+        
+        return result;
+
+        
 	}
 
 }

@@ -1,15 +1,25 @@
 package com.nyc.shop.web;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.jfree.util.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -70,6 +80,24 @@ public class ShopController {
 	}
 	
 	/**
+     * 스마트에디터 테스트 페이지
+     * @return string
+     */
+	@RequestMapping(value = "/jpro/coin.do")
+	public String coin(HttpServletRequest request, ModelMap model) {
+		return "jpro/coin";
+	}
+	
+	/**
+     * 엑셀 테스트 페이지
+     * @return string
+     */
+	@RequestMapping(value = "/jpro/excelTest1.do")
+	public String excelTest1(HttpServletRequest request, ModelMap model) {
+		return "jpro/excelTest";
+	}
+	
+	/**
      * 엑셀 업로드 테스트 페이지
      * @return string
 	 * @throws Exception 
@@ -77,6 +105,9 @@ public class ShopController {
 	@ResponseBody
 	@RequestMapping(value = "/jpro/excelTest.do")
 	public int excelTest(MultipartHttpServletRequest multiRequest, @RequestParam Map<String, Object> commandMap) {
+		String word = (String)commandMap.get("word");
+		String column = (String)commandMap.get("column");
+		
 		int result = 0;
 		
 		MultipartFile excelFile = multiRequest.getFile("excelFile");
@@ -86,15 +117,20 @@ public class ShopController {
             logger.debug("엑셀파일이 아닙니다.");
         }
         
-        String root_path = multiRequest.getSession().getServletContext().getRealPath("/");  
-        String attach_path = "resources/upload/";
+        //String root_path = multiRequest.getSession().getServletContext().getRealPath("/");
+        //String attach_path = "resources\\upload\\";
+        //logger.debug(root_path + attach_path + excelFile.getOriginalFilename());
+        //File file = new File(root_path + attach_path + excelFile.getOriginalFilename());
         
-        logger.debug(root_path + attach_path + excelFile.getOriginalFilename());
-        File file = new File(root_path + attach_path + excelFile.getOriginalFilename());
+        String path = "C:\\JPRO\\file\\";
+        
+        File file = new File( path + excelFile.getOriginalFilename());
+        
         	
         try{
             excelFile.transferTo(file);
-            excelService.excelUpload(file);
+            List<Map<String, String>> list = excelService.excelUpload(file, word, column);
+            logger.debug(list.toString());
         }catch(IllegalStateException ie){
         	logger.debug(ie.getMessage());
         }catch(IOException ioe) {
@@ -145,7 +181,7 @@ public class ShopController {
 		
 		return result;
 	}
-	
+
 	
 	/**
      * 테스트 페이지
@@ -154,40 +190,197 @@ public class ShopController {
      */
 	@ResponseBody
 	@RequestMapping(value = "/jpro/testCrawling2.do")
-	public List<String> testCrawling2(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap){
-		List<String> result = new ArrayList<String>();
+	public List<Map<String, String>> testCrawling2(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap){
+		
+		List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+		
 		String url = "https://www.bithumb.com/";
-		Map<String, Double> coinMap = new HashMap<String, Double>();
+		
+		
+		
+		WebDriver driver = null;
 		
 		try {
 			System.setProperty("webdriver.chrome.driver", "C:/chromedriver.exe");
-			WebDriver driver = new ChromeDriver();
+			driver = new ChromeDriver();
 			
 			driver.get(url);
 			//
 			List<WebElement> element = null;
 			element = driver.findElements(By.className("fvtWrap"));
 			for(int i = 0; i < element.size(); i++) {
-				logger.debug(element.get(i).getAttribute("data-coin"));
-				String coinName = element.get(i).getAttribute("data-coin");
-				WebElement tempElement = element.get(i).findElement(By.id("assetReal" + coinName + "_KRW"));
-				logger.debug(tempElement.getAttribute("data-sorting"));
+				//코인 영어명
+				String coinNameEng = element.get(i).getAttribute("data-coin");
+				
+				//코가격 찾기
+				WebElement tempElement = element.get(i).findElement(By.id("assetReal" + coinNameEng + "_KRW"));
 				Double coinPrice = Double.valueOf(tempElement.getAttribute("data-sorting").replace(",", ""));
 				
-				coinMap.put(coinName, coinPrice);
+				//코인한글명
+				WebElement tempElement2 = element.get(i).findElement(By.className("sort_coin"));
+				String coinNameKr = tempElement2.getAttribute("data-sorting");
+				
+				//전일 대비 비교
+				WebElement tempElement3 = element.get(i).findElement(By.id("assetRealRate" + coinNameEng + "_KRW"));
+				String coinRate = tempElement3.getText();
+				
+				//거래금액
+				WebElement tempElement4 = element.get(i).findElement(By.id("assetReal" + coinNameEng + "_KRW2KRW"));
+				String coinTranPrice = tempElement4.getText();
+				
+				//시가총액
+				WebElement tempElement5 = element.get(i).findElement(By.className("sort_total"));
+				String coinTotal = tempElement5.getText();
+				
+				
+				Map<String, String> coinMap = new HashMap<String, String>();
+				
+				coinMap.put("coinName", coinNameKr);
+				coinMap.put("coinPrice", coinPrice + "");
+				coinMap.put("coinRate", coinRate + "");
+				coinMap.put("coinTranPrice", coinTranPrice + "");
+				coinMap.put("coinTotal", coinTotal + "");
+				
+				
+				result.add(coinMap);
 			}
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
 		
-		logger.debug(coinMap.toString());
-		
+		driver.quit();
 		
 		return result;
 	}
 	
 	
+	/**45
+     * 테스트 페이지
+     * @return string
+	 * @throws org.json.simple.parser.ParseException 
+     */
+	@ResponseBody
+	@RequestMapping(value = "/jpro/testCrawling3.do")
+	public List<Map<String, String>> testCrawling3(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap){
+		
+		// can only grab first 100 results
+		String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36";
+		String url = "https://www.bithumb.com/";
+		List<Map<String,String>> result = new ArrayList<Map<String, String>>();
+		
+		try {
+		    Document doc = Jsoup.connect(url).userAgent(userAgent).referrer("https://www.bithumb.com/").get();
+		    Elements elements = doc.select("tr.fvtWrap");
+		    
+		    for (Element element : elements) {
+		    	Map<String, String> coinMap = new HashMap<String, String>();
+		    	
+		    	//코인 영어 이름
+		    	String coinName = element.attr("data-coin");
+
+		    	
+		    	//코인 한글명
+		    	Elements tmpEl0 = element.getElementsByClass("sort_coin");
+		    	String coinNameKr = tmpEl0.get(0).attr("data-sorting");
+		    	
+		    	//코인 가격
+		    	Element tmpEl1 = element.getElementById("assetReal" + coinName + "_KRW");
+		    	String coinPrice = tmpEl1.attr("data-sorting").replace(",", "");
+		    	
+		    	//전일 대비 비교
+		    	Element tmpEl2 = element.getElementById("assetRealRate" + coinName + "_KRW");
+		    	String coinRate = tmpEl2.text();
+		    	
+		    	//거래금액
+		    	Element tmpEl3 = element.getElementById("assetReal" + coinName + "_KRW2KRW");
+		    	String coinTranPrice = tmpEl3.text();
+		    	
+		    	//사기총액
+		    	Elements tmpEl4 = element.getElementsByClass("sort_total");
+		    	String coinTotal = tmpEl4.get(0).text();
+		    	
+		    	
+		    	coinMap.put("coinName", coinName);
+		    	coinMap.put("coinNameKr", coinNameKr);
+		    	coinMap.put("coinPrice", coinPrice);
+		    	coinMap.put("coinRate", coinRate);
+		    	coinMap.put("coinTranPrice", coinTranPrice);
+		    	coinMap.put("coinTotal", coinTotal);
+		    	
+		    	result.add(coinMap);
+		    }
+		} catch (IOException ie) {
+			logger.debug(ie.getMessage());
+		} catch(Exception e){
+			logger.debug(e.getMessage());
+		}
+		
+		return result;
+	}
 	
+	/**45
+     * 테스트 페이지
+     * @return string
+	 * @throws org.json.simple.parser.ParseException 
+     */
+	@ResponseBody
+	@RequestMapping(value = "/jpro/testCrawling4.do")
+	public List<Map<String, String>> testCrawling4(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap){
+		
+		// can only grab first 100 results
+		String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36";
+		String url = "https://www.bithumb.com/";
+		List<Map<String,String>> result = new ArrayList<Map<String, String>>();
+		
+		try {
+		    Document doc = Jsoup.connect(url).userAgent(userAgent).referrer("https://www.bithumb.com/").get();
+		    Elements elements = doc.select("tr.fvtWrap");
+		    
+		    for (Element element : elements) {
+		    	Map<String, String> coinMap = new HashMap<String, String>();
+		    	
+		    	//코인 영어 이름
+		    	String coinName = element.attr("data-coin");
+
+		    	
+		    	//코인 한글명
+		    	Elements tmpEl0 = element.getElementsByClass("sort_coin");
+		    	String coinNameKr = tmpEl0.get(0).attr("data-sorting");
+		    	
+		    	//코인 가격
+		    	Element tmpEl1 = element.getElementById("assetReal" + coinName + "_KRW");
+		    	String coinPrice = tmpEl1.attr("data-sorting").replace(",", "");
+		    	
+		    	//전일 대비 비교
+		    	Element tmpEl2 = element.getElementById("assetRealRate" + coinName + "_KRW");
+		    	String coinRate = tmpEl2.text();
+		    	
+		    	//거래금액
+		    	Element tmpEl3 = element.getElementById("assetReal" + coinName + "_KRW2KRW");
+		    	String coinTranPrice = tmpEl3.text();
+		    	
+		    	//사기총액
+		    	Elements tmpEl4 = element.getElementsByClass("sort_total");
+		    	String coinTotal = tmpEl4.get(0).text();
+		    	
+		    	
+		    	coinMap.put("coinName", coinName);
+		    	coinMap.put("coinNameKr", coinNameKr);
+		    	coinMap.put("coinPrice", coinPrice);
+		    	coinMap.put("coinRate", coinRate);
+		    	coinMap.put("coinTranPrice", coinTranPrice);
+		    	coinMap.put("coinTotal", coinTotal);
+		    	
+		    	result.add(coinMap);
+		    }
+		} catch (IOException ie) {
+			logger.debug(ie.getMessage());
+		} catch(Exception e){
+			logger.debug(e.getMessage());
+		}
+		
+		return result;
+	}
 	
 	
 	/**
@@ -196,7 +389,7 @@ public class ShopController {
 	 * @throws org.json.simple.parser.ParseException 
      */
 	@RequestMapping(value = "/jpro/test.do")
-	public String test(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap) throws org.json.simple.parser.ParseException {
+	public String test(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap) {
 		return "jpro/test";
 	}
 	
@@ -226,4 +419,76 @@ public class ShopController {
 		driver.close();
 	}
 	*/
+	
+	/**
+     * 텍스트 붙이기
+     * @return string
+	 * @throws org.json.simple.parser.ParseException 
+     */
+	@RequestMapping(value = "/jpro/sumText.do")
+	public String sumText(HttpServletRequest request, ModelMap model, @RequestParam Map<String, Object> commandMap, HttpServletResponse response) {
+		return "jpro/sumText";
+	}
+	
+	
+	/**
+     * 텍스트 붙이기
+     * @return string
+	 * @throws org.json.simple.parser.ParseException 
+     */
+	@RequestMapping(value = "/jpro/sumTextFile.do")
+	public void sumTextFile(MultipartHttpServletRequest multiRequest, ModelMap model, @RequestParam Map<String, Object> commandMap, HttpServletResponse response) {
+		
+		Iterator<String> iterator = multiRequest.getFileNames();
+		MultipartFile multipartFile = null;
+		String filePath = "/bnm2027/file/";
+		String str = "";
+		String temp = "";
+		String fileFullName = "";
+		String fileName = "";
+		
+		SimpleDateFormat format1 = new SimpleDateFormat ( "yyyyMMdd HHmmss");
+		Date timeD = new Date();
+		String time = format1.format(timeD);
+		
+		try {
+			while (iterator.hasNext()) {
+				multipartFile = multiRequest.getFile(iterator.next());
+				fileName = multipartFile.getOriginalFilename();
+				int pos = fileName.lastIndexOf(".");
+				fileFullName = fileFullName + fileName.substring(0, pos) + "_";
+				
+				
+				
+				InputStreamReader isr = new InputStreamReader(multipartFile.getInputStream());
+				BufferedReader buffer = new BufferedReader(isr);
+				while((temp = buffer.readLine() ) != null){
+					str += temp + "\n";
+				}
+			}
+			
+            File file = new File(filePath + fileFullName + time + ".txt") ;
+            FileWriter fw = new FileWriter(file, true) ;
+            fw.write(str);
+            fw.flush();
+            fw.close();
+            
+			byte fileByte[] = FileUtils.readFileToByteArray(new File(filePath + fileFullName + time + ".txt"));
+			
+			response.setContentType("application/octet-stream"); 
+			response.setContentLength(fileByte.length); 
+			response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(fileFullName + time + ".txt","UTF-8")+"\";"); 
+			response.setHeader("Content-Transfer-Encoding", "binary"); 
+			response.getOutputStream().write(fileByte); 
+			response.getOutputStream().flush();
+			response.getOutputStream().close();
+            
+			
+			
+		} catch (Exception e) {
+			Log.debug(e.getMessage());
+		}
+		
+	}
+	
 }

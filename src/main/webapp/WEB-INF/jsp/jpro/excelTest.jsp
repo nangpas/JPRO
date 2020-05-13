@@ -8,7 +8,6 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Test</title>
 	
 	<script type="text/javascript" src="<c:url value="/resources/js/common/jquery-3.4.1.min.js"/>"></script>
@@ -25,6 +24,10 @@
 	                <dt class="down w90">첨부 파일</dt>
 	                <dd><input id="excelFile" type="file" name="excelFile" /></dd>
 	        </dl>        
+	    </div>
+	    <div>
+	    	<input type="text" id="word" name="word"/>
+	    	<input type="text" id="column" name="column"/>
 	    </div>
 	            
 	    <div class="bottom">
