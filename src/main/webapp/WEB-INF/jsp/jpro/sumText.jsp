@@ -39,6 +39,24 @@
 	</div>
 	<div class="ui divider"></div>
 	<div class="context">
+		<h2 class="ui header">엑셀 특정단어 포함 행 뽑기!(*.xlsx만 가능)</h2>
+		<div class="ui raised segment">
+			<form id="excelUploadForm" name="excelUploadForm" enctype="multipart/form-data" method="post" action="<c:url value='/jpro/extExcelFile.do'/>">
+				<p><input type="file" id="excelFile" name="excelFile" onchange="checkFileExcel(this);"/></p>
+				<div class="ui input">
+				  <input type="text" id="word" name="word" placeholder="포함할 단어">
+				</div>
+				<div class="ui input">
+				  <input type="text" id="column" name="column" placeholder="행이름(ex:A,B,C,D,E,F,G)">
+				</div>
+				<div class="submit">
+					<button class="ui primary button">추출 및 다운로드</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="ui divider"></div>
+	<div class="context">
 		<h2 class="ui header">추가 기능 개발 예정</h2>
 		<div class="ui raised segment">
 		</div>
@@ -72,7 +90,7 @@ function checkFile(obj){
 
 	if(ext != "txt"){
 		alert("txt 파일만 업로드 가능합니다");
-		$("#"+id).val("");
+		$("#"+name).val("");
 		return;
 	}
 }
@@ -88,6 +106,23 @@ function sumText(){
     }  
 	won_formAjax(ajax_set);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+function checkFileExcel(obj){
+	var name = obj.name;
+	var fileName = $("#"+name).val();
+	var ext = fileName.split('.').pop().toLowerCase();
+	
+	if(ext != "xlsx"){
+		alert("xlsx 파일만 업로드 가능합니다");
+		$("#"+name).val("");
+		return;
+	}
+}
+
+
+
 </script>
 </body>
 </html>

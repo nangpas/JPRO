@@ -103,11 +103,11 @@ public class ShopController {
 	 * @throws Exception 
      */
 	@ResponseBody
-	@RequestMapping(value = "/jpro/excelTest.do")
-	public int excelTest(MultipartHttpServletRequest multiRequest, @RequestParam Map<String, Object> commandMap) {
+	@RequestMapping(value = "/jpro/extExcelFile.do")
+	public int excelTest(MultipartHttpServletRequest multiRequest, @RequestParam Map<String, Object> commandMap, HttpServletResponse response) {
 		String word = (String)commandMap.get("word");
 		String column = (String)commandMap.get("column");
-		
+		String fileName = "";
 		int result = 0;
 		
 		MultipartFile excelFile = multiRequest.getFile("excelFile");
@@ -124,13 +124,19 @@ public class ShopController {
         
         String path = "C:\\JPRO\\file\\";
         
+        fileName = excelFile.getOriginalFilename();
+        
+        int pos = fileName .lastIndexOf(".");
+        fileName = fileName.substring(0, pos);
+        
         File file = new File( path + excelFile.getOriginalFilename());
         
         	
         try{
+        	word = new String(word.getBytes("8859_1"),"utf-8");
             excelFile.transferTo(file);
             List<Map<String, String>> list = excelService.excelUpload(file, word, column);
-            logger.debug(list.toString());
+            excelService.excelDown(response, list, fileName);
         }catch(IllegalStateException ie){
         	logger.debug(ie.getMessage());
         }catch(IOException ioe) {
